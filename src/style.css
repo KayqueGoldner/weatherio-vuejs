@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-surface: var(--surface);
+  --color-on-background: var(--on-background);
+  --color-black-alpha-10: var(--black-alpha-10);
+  --color-white-alpha-8: var(--white-alpha-8);
+  --color-aqi-1: var(--aqi-1);
+  --color-on-aqi-1: var(--on-aqi-1);
+  --color-aqi-2: var(--aqi-2);
+  --color-on-aqi-2: var(--on-aqi-2);
+  --color-aqi-3: var(--aqi-3);
+  --color-on-aqi-3: var(--on-aqi-3);
+  --color-aqi-4: var(--aqi-4);
+  --color-on-aqi-4: var(--on-aqi-4);
+  --color-aqi-5: var(--aqi-5);
+  --color-on-aqi-5: var(--on-aqi-5);
+}
+
+:root {
+  --primary: #131214;
+  --surface: #1D1C1F;
+  --on-background: #EAE6F2;
+  --black-alpha-10: #0000001A;
+  --white-alpha-8: #FFFFFF14;
+  --aqi-1: #89E589;
+  --on-aqi-1: #1F331F;
+  --aqi-2: #E5DD89;
+  --on-aqi-2: #33311F;
+  --aqi-3: #E5C089;
+  --on-aqi-3: #332B1F;
+  --aqi-4: #E58989;
+  --on-aqi-4: #331F1F;
+  --aqi-5: #E589B7;
+  --on-aqi-5: #331F29;
+}
+
+@layer base {
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white-alpha-8 rounded-md;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+::selection { background-color: hsla(0, 0%, 100%, .08) }
+
+.grid-container {
+  grid-template-columns: 380px 1fr;
+  padding-inline: 16px;
+  column-gap: 13px;
+}
+
+
+@layer components {
+
+  .btn-border {
+    @apply border-2 border-surface rounded-full hover:bg-surface transition;
+  }
+
+}

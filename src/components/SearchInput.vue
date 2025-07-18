@@ -1,31 +1,47 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { MapPinIcon, SearchIcon } from "lucide-vue-next";
+import { ref, watch } from "vue";
+import { Loader2Icon, MapPinIcon, SearchIcon } from "lucide-vue-next";
 
-interface City {
-  id: number;
-  name: string;
-  lat: number;
-  lon: number;
-}
-
-const mockCities: City[] = [
-  { id: 1, name: "São Paulo", lat: -23.5505, lon: -46.6333 },
-  { id: 2, name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729 },
-  { id: 3, name: "Belo Horizonte", lat: -19.9167, lon: -43.9345 },
-  { id: 4, name: "Curitiba", lat: -25.4284, lon: -49.2733 },
-  { id: 5, name: "Recife", lat: -8.0476, lon: -34.877 },
-];
+import api from "../services/api";
+import type { ICity } from "../types";
 
 const search = ref("");
+const data = ref<ICity[]>([]);
+const loading = ref(false);
+const error = ref("");
 
-const filteredCities = computed(() =>
-  mockCities.filter((city) =>
-    search.value
-      ? city.name.toLowerCase().startsWith(search.value.toLowerCase())
-      : null
-  )
-);
+const getWeatherByCity = async (query: string) => {
+  if (!query) {
+    data.value = [];
+    return;
+  }
+
+  try {
+    loading.value = true;
+    error.value = "";
+    const response = await api.get("/geo/1.0/direct", {
+      params: {
+        q: query,
+        limit: 5,
+      },
+    });
+    data.value = response.data;
+  } catch (err) {
+    console.error("Erro ao buscar cidade:", err);
+    error.value = "Erro ao buscar cidade.";
+    data.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+let debounceTimeout: number;
+watch(search, (newQuery) => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    getWeatherByCity(newQuery);
+  }, 500);
+});
 </script>
 
 <template>
@@ -40,28 +56,27 @@ const filteredCities = computed(() =>
         class="w-full rounded-full border-none border-gray-300 p-2 focus:outline-none placeholder:text-neutral-500"
         placeholder="Pesquisar cidade"
       />
+      <Loader2Icon v-if="loading" class="animate-spin" />
     </div>
 
     <ul
-      v-if="filteredCities.length"
+      v-if="data.length"
       class="absolute top-[110%] left-0 w-full rounded-xl overflow-hidden bg-surface shadow-lg"
     >
       <li
-        v-for="city in filteredCities"
-        :key="city.id"
+        v-for="city in data"
+        :key="`${city.name}-${city.lat}-${city.lon}`"
         class="hover:bg-zinc-800/80 transition"
       >
         <router-link
           :to="`/pesquisar?lat=${city.lat}&lon=${city.lon}`"
           class="flex items-center gap-x-5 px-5 py-2"
         >
-          <div>
-            <MapPinIcon color="#fff" />
-          </div>
+          <MapPinIcon color="#fff" />
           <div>
             <p class="text-zinc-300 text-lg leading-6">{{ city.name }}</p>
-            <p class="text-zinc-500 text-[15px] leading-5">
-              {{ city.lat }} - {{ city.lon }}
+            <p className="text-zinc-500 text-[15px] leading-5">
+              {{ city.state }} - {{ city.country }}
             </p>
           </div>
         </router-link>
